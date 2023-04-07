@@ -1,0 +1,37 @@
+GRANT administrator TO organizer;
+GRANT manager TO hall_manager;
+GRANT administrator TO speaker;
+
+
+
+REVOKE administrator FROM organizer;
+REVOKE manager FROM hall_manager;
+REVOKE administrator FROM speaker;
+
+--немає доступу--
+SET ROLE speaker;
+CREATE TABLE example (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL
+);
+
+-- є доступ --
+SET ROLE speaker;
+SELECT * FROM conferences;
+
+
+--забираємо можливість SELECT у користувача--
+REVOKE SELECT ON conferences FROM speaker;
+
+
+REVOKE ALL PRIVILEGES ON DATABASE study_work FROM speaker;
+
+
+
+
+
+--видалення ролів , користувачів--
+REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public FROM speaker;
+REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public FROM speaker;
+REVOKE ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public FROM speaker;
+DROP USER speaker;

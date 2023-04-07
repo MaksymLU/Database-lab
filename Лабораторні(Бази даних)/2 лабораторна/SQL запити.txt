@@ -1,0 +1,109 @@
+SELECT на базі однієї таблиці з використанням сортування, накладенням умов зі зв’язками OR та AND.
+
+SELECT * FROM public.speeches
+WHERE speaker_id <= 3 AND (section_id = 2 OR equipment_needed IS NOT NULL);
+
+·SELECT з виводом обчислюваних полів (виразів) в колонках результату.
+
+SELECT id,speaker_id, topic, duration, (duration/60.0) AS duration_hours, (start_time + interval '1 hour') AS end_time
+FROM speeches
+WHERE speaker_id = 3
+ORDER BY start_time DESC;
+
+
+·SELECT на базі кількох таблиць з використанням сортування, накладенням умов зі зв’язками OR та AND.
+
+SELECT * FROM public.speeches
+WHERE speaker_id <= 10 AND (section_id = 2 OR equipment_needed IS NULL)
+ORDER BY start_time ASC;
+
+·SELECT на базі кількох таблиць з типом поєднання Outer Join.
+
+SELECT s.topic, speakers.name, sections.name
+FROM speeches s
+LEFT JOIN speakers ON s.speaker_id = speakers.id
+LEFT JOIN sections ON s.section_id = sections.id;
+
+·SELECT з використанням операторів Like, Between, In, Exists, All, Any.
+
+SELECT * FROM speakers WHERE name LIKE 'L%';
+SELECT * FROM public.speeches WHERE start_time BETWEEN '2022-04-10' AND '2022-12-05';
+SELECT * FROM public.speeches WHERE speaker_id IN(1,2,6);
+SELECT * FROM public.office WHERE venue_id = ANY (SELECT id FROM venues WHERE address IN('106 Hanson Trail','9 Bultman Avenue'));
+
+
+·SELECT з використанням підсумовування та групування.
+
+SELECT COUNT(venue_id),venue_id FROM public.office GROUP BY venue_id ORDER BY COUNT(venue_id) ASC;  
+
+·SELECT з використанням під-запитів в частині Where.
+
+SELECT *
+FROM speeches
+WHERE section_id IN (
+    SELECT id
+    FROM sections
+    WHERE conferences_id IN (
+        SELECT id
+        FROM conferences
+        WHERE start_time > '2022-02-20'
+    )
+);
+
+
+·SELECT з використанням під-запитів в частині From.
+
+SELECT v.address, COUNT(*) AS num_conferences
+FROM (
+    SELECT DISTINCT c.id, c.name, c.start_date, c.end_date, s.venue_id
+    FROM conferences c
+    JOIN sections s ON c.id = s.conferences_id
+) AS conf
+JOIN venues v ON conf.venue_id = v.id
+GROUP BY v.address;
+
+
+·SELECT‑запит типу CrossTab.
+SELECT 
+  sections.name AS section_name,
+  MAX(CASE WHEN speeches.id = 1 THEN speeches.equipment_needed END) AS speech_1_equipment,
+  MAX(CASE WHEN speeches.id = 2 THEN speeches.equipment_needed END) AS speech_2_equipment,
+  MAX(CASE WHEN speeches.id = 3 THEN speeches.equipment_needed END) AS speech_3_equipment,
+  MAX(CASE WHEN speeches.id = 4 THEN speeches.equipment_needed END) AS speech_4_equipment
+FROM speeches
+JOIN sections ON sections.id = speeches.section_id
+GROUP BY sections.name;
+
+·UPDATE на базі однієї таблиці.
+UPDATE conferences
+SET start_date = '2022-01-01'
+WHERE id = 1;
+
+
+·Append (INSERT) для додавання записів з явно вказаними значеннями.
+INSERT INTO conferences (name, start_date, end_date, conferences_address) 
+VALUES ('My New Conference', '2023-06-01', '2023-06-03', '456 Main St');
+
+Append (INSERT) для додавання записів з інших таблиць
+
+INSERT INTO public.conferences (name, start_date, end_date, conferences_address)
+SELECT name, start_date, end_date, conferences_address FROM other_database.conferences;
+ 
+Ієрархічний запит (приклад)
+WITH RECURSIVE get_managers AS (
+  SELECT id, name, manager_id, 0 AS level
+  FROM employees
+  WHERE manager_id IS NULL
+  UNION ALL
+  SELECT e.id, e.name, e.manager_id, gm.level + 1
+  FROM employees e
+  INNER JOIN get_managers gm ON e.manager_id = gm.id
+)
+
+·DELETE для видалення всіх даних з таблиці.
+
+DELETE FROM speeches;
+
+
+·DELETE для видалення вибраних записів таблиці.
+DELETE FROM speeches WHERE id =20;

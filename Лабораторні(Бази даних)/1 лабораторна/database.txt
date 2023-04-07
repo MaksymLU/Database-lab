@@ -1,0 +1,116 @@
+CREATE TABLE IF NOT EXISTS public.conferences
+(
+    id integer NOT NULL DEFAULT nextval('sequence_conferences'::regclass),
+    name character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    start_date date NOT NULL,
+    end_date date NOT NULL,
+    conferences_address character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT conferences_pkey PRIMARY KEY (id)
+)
+
+CREATE TABLE IF NOT EXISTS public.equipment
+(
+    id integer NOT NULL DEFAULT nextval('sequence_equipment'::regclass),
+    equipment_list character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT equipment_pkey PRIMARY KEY (id)
+)
+CREATE TABLE IF NOT EXISTS public.office
+(
+    office_number integer NOT NULL,
+    venue_id integer,
+    CONSTRAINT office_pkey PRIMARY KEY (office_number),
+    CONSTRAINT office_venue_id_fkey FOREIGN KEY (venue_id)
+        REFERENCES public.venues (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+CREATE TABLE IF NOT EXISTS public.sections
+(
+    id integer NOT NULL DEFAULT nextval('sequence_sections'::regclass),
+    name character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    chairperson character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    venue_id integer NOT NULL,
+    conferences_id integer NOT NULL,
+    CONSTRAINT sections_pkey PRIMARY KEY (id),
+    CONSTRAINT sections_conferences_id_fkey FOREIGN KEY (conferences_id)
+        REFERENCES public.conferences (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT sections_venue_id_fkey FOREIGN KEY (venue_id)
+        REFERENCES public.venues (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+CREATE TABLE IF NOT EXISTS public.speakers
+(
+    id integer NOT NULL DEFAULT nextval('sequence_speakers'::regclass),
+    name character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    degree character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    workplace character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    "position" character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    bio text COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT speakers_pkey PRIMARY KEY (id)
+)
+CREATE TABLE IF NOT EXISTS public.speeches
+(
+    id integer NOT NULL DEFAULT nextval('sequence_speeches'::regclass),
+    topic character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    speaker_id integer NOT NULL,
+    section_id integer NOT NULL,
+    start_time timestamp without time zone NOT NULL,
+    duration time without time zone NOT NULL,
+    equipment_needed integer,
+    office_fk integer NOT NULL,
+    CONSTRAINT speeches_pkey PRIMARY KEY (id),
+    CONSTRAINT fk_office_id FOREIGN KEY (office_fk)
+        REFERENCES public.office (office_number) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT speeches_equipment_needed_fkey FOREIGN KEY (equipment_needed)
+        REFERENCES public.equipment (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT speeches_section_id_fkey FOREIGN KEY (section_id)
+        REFERENCES public.sections (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT speeches_speaker_id_fkey FOREIGN KEY (speaker_id)
+        REFERENCES public.speakers (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+CREATE TABLE IF NOT EXISTS public.venues
+(
+    id integer NOT NULL DEFAULT nextval('sequence_venues'::regclass),
+    name character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    address character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT venues_pkey PRIMARY KEY (id)
+)
+
+
+INSERT INTO public.conferences (name, start_date, end_date, conferences_address) 
+VALUES ('International Conference on Computer Science', '2023-07-10', '2023-07-13', '123 Main St.');
+
+
+INSERT INTO public.equipment (equipment_list)
+VALUES ('Projector'), ('Microphone'), ('Laptop'), ('Speaker');
+
+INSERT INTO public.venues (name, address)
+VALUES ('Convention Center', '456 Elm St.'), ('Auditorium', '789 Oak Ave.');
+
+INSERT INTO public.office (office_number, venue_id)
+VALUES (101, 1), (102, 2), (103, 1), (104, 2);
+
+
+INSERT INTO public.speakers (name, degree, workplace, position, bio)
+VALUES ('John Doe', 'PhD', 'XYZ University', 'Professor', 'John Doe is a professor of computer science...');
+
+INSERT INTO public.sections (name, chairperson, venue_id, conferences_id)
+VALUES ('Artificial Intelligence', 'Jane Smith', 1, 1), ('Data Science', 'Bob Johnson', 2, 1);
+
+
+INSERT INTO public.speeches (topic, speaker_id, section_id, start_time, duration, equipment_needed, office_fk)
+VALUES ('Introduction to AI', 1, 1, '2023-07-10 09:00:00', '01:00:00', 1, 101),
+       ('Machine Learning Techniques', 2, 1, '2023-07-11 11:00:00', '01:30:00', 1, 102),
+       ('Data Visualization', 1, 2, '2023-07-12 10:00:00', '01:15:00', 3, 103);
+

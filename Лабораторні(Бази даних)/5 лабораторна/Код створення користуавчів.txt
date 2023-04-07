@@ -1,0 +1,40 @@
+Керівник залу. Цей користувач відповідає за підготовку конференційних залів 
+та забезпечення необхідного обладнання. Його задачі включають: перевірка наявності 
+необхідного обладнання для кожної доповіді, підготовка залу перед початком конференції, 
+забезпечення роботи обладнання під час конференції, допомога спікерам з обладнанням, 
+забезпечення безпеки в залі під час конференції.
+
+CREATE USER hall_manager WITH PASSWORD 'password';
+GRANT SELECT, UPDATE, DELETE ON TABLE speeches TO hall_manager;
+GRANT INSERT, UPDATE, DELETE ON TABLE equipment TO hall_manager;
+GRANT SELECT, UPDATE ON TABLE conferences TO hall_manager;
+
+
+Організатор конференцій. Цей користувач відповідає за організацію конференцій і має наступні задачі:
+ створення нової конференції, редагування даних конференції, додавання та редагування секцій та доповідей,
+ додавання та редагування списку спікерів, встановлення обладнання для кожної доповіді, розподіл спікерів
+ по секціях, перевірка та оцінка доповідей, виставлення рейтингу конференції.
+
+CREATE USER organizer WITH PASSWORD 'password';
+GRANT ALL PRIVILEGES ON DATABASE study_work TO organizer;
+
+
+Спікер. Цей користувач має наступні задачі: підготовка доповіді, забезпечення наявності 
+необхідного обладнання та матеріалів, виступ на конференції, допомога з обладнанням та
+налаштуванням презентації, відповідь на питання учасників після виступу.
+
+CREATE USER speaker WITH PASSWORD 'password';
+GRANT SELECT, UPDATE, DELETE ON TABLE speeches TO speaker;
+GRANT SELECT, UPDATE ON TABLE equipment TO speaker;
+GRANT SELECT ON TABLE conferences TO speaker;
+
+
+Учасник конференції. Цей користувач має задачі: реєстрація на конференцію, вибір секції 
+та доповіді, відвідування доповідей, задавання питань спікерам, спілкування з іншими учасниками
+та взаємодія з організаторами конференції.
+
+CREATE USER participant WITH PASSWORD 'password';
+
+GRANT SELECT ON TABLE conferences TO participant;
+GRANT SELECT ON TABLE sections TO participant;
+GRANT SELECT ON TABLE speeches TO participant;

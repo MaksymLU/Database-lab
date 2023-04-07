@@ -1,0 +1,27 @@
+Роль "Адміністратор" - користувач, який має повний доступ до всіх функцій БД.
+ Ця роль може створювати, редагувати, видаляти таблиці та інші об'єкти, надавати та знімати доступ
+ іншим користувачам, створювати, змінювати та видаляти ролі, виконувати будь-які запити до БД.
+створення, редагування та видалення таблиць та інших об'єктів БД;
+надання та зняття доступу іншим користувачам;
+створення, змінення та видалення ролей;
+виконання будь-яких запитів до БД.
+
+CREATE ROLE administrator LOGIN PASSWORD 'password';
+GRANT CONNECT ON DATABASE study_workTO administrator;
+GRANT USAGE ON SCHEMA public TO administrator;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO administrator;
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO administrator;
+
+
+
+Роль "Менеджер" - користувач, який може керувати таблицями та іншими об'єктами БД, але не має повного
+ доступу до всіх функцій БД. Ця роль може створювати таблиці та інші об'єкти, 
+а також виконувати запити до БД, але не може надавати або знімати доступ іншим користувачам, створювати або змінювати ролі.
+створення, редагування та видалення таблиць та інших об'єктів БД;
+виконання запитів до БД.
+
+CREATE ROLE manager;
+
+GRANT CREATE ON DATABASE study_work TO manager;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO manager;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO manager;

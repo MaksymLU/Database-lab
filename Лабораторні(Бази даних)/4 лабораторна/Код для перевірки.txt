@@ -1,0 +1,7 @@
+INSERT INTO speeches (topic, speaker_id, section_id, start_time, duration, office_fk)
+VALUES ('Topic 1', 1, 1, '2023-04-05 10:00:00', '01:00:00', 1);
+
+
+UPDATE speeches
+SET start_time = '2023-04-05 10:30:00', duration = '01:00:00'
+WHERE topic LIKE 'Topic 1';
