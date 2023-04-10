@@ -1,0 +1,79 @@
+CREATE OR REPLACE FUNCTION public.check_speech_office()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE NOT LEAKPROOF
+AS $BODY$
+BEGIN
+  RAISE NOTICE 'Trigger : office_fk=%, start_time=%, duration=%', NEW.office_fk, NEW.start_time, NEW.duration;
+  
+  IF EXISTS(
+      SELECT 1 FROM speeches 
+      WHERE office_fk = NEW.office_fk 
+        AND start_time < NEW.start_time + NEW.duration::INTERVAL 
+        AND start_time + duration::INTERVAL > NEW.start_time
+  ) THEN
+      RAISE EXCEPTION 'Speech time conflict';
+  END IF;
+  RETURN NEW;
+END;
+$BODY$;
+
+ALTER FUNCTION public.check_speech_office()
+    OWNER TO postgres;
+
+
+
+
+
+CREATE OR REPLACE FUNCTION public.check_speech_section()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE NOT LEAKPROOF
+AS $BODY$
+BEGIN
+  RAISE NOTICE 'Trigger : section_id=%, start_time=%', NEW.section_id, NEW.start_time;
+  
+  IF EXISTS(
+      SELECT 1 FROM speeches 
+      WHERE speaker_id = NEW.speaker_id
+	  AND DATE(start_time) = DATE(NEW.start_time)
+	  AND section_id != NEW.section_id
+  ) THEN
+      RAISE EXCEPTION 'Speech time conflict';
+  END IF;
+  RETURN NEW;
+END;
+$BODY$;
+
+ALTER FUNCTION public.check_speech_section()
+    OWNER TO postgres;
+
+
+
+
+CREATE OR REPLACE FUNCTION public.check_speech_time()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE NOT LEAKPROOF
+AS $BODY$
+BEGIN
+  RAISE NOTICE 'Trigger : speaker_id=%, start_time=%, duration=%', NEW.speaker_id, NEW.start_time, NEW.duration;
+  
+  IF EXISTS(
+      SELECT 1 FROM speeches 
+      WHERE speaker_id = NEW.speaker_id 
+        AND start_time < NEW.start_time + NEW.duration::INTERVAL 
+        AND start_time + duration::INTERVAL > NEW.start_time
+  ) THEN
+      RAISE EXCEPTION 'Speech time conflict';
+  END IF;
+  RETURN NEW;
+END;
+$BODY$;
+
+ALTER FUNCTION public.check_speech_time()
+    OWNER TO postgres;
+

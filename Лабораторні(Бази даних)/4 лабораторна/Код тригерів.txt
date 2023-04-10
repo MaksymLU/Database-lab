@@ -1,0 +1,19 @@
+CREATE TRIGGER check_speech_office_time_trigger
+    BEFORE INSERT OR UPDATE 
+    ON public.speeches
+    FOR EACH ROW
+    EXECUTE FUNCTION public.check_speech_office();
+
+
+CREATE TRIGGER check_speech_section_trigger
+    BEFORE INSERT OR UPDATE 
+    ON public.speeches
+    FOR EACH ROW
+    EXECUTE FUNCTION public.check_speech_section();
+
+
+CREATE TRIGGER check_speech_time_trigger
+    BEFORE INSERT OR UPDATE 
+    ON public.speeches
+    FOR EACH ROW
+    EXECUTE FUNCTION public.check_speech_time();
